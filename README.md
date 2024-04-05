@@ -20,21 +20,18 @@ After installing and running the service, it will start collecting all Dogecoin 
 2. Clone the repository:
 
    ```
-   bash
    git clone https://github.com/dogeorg/dogemap.git
    ```
 
 3. After cloning, navigate to the directory:
 
    ```
-   bash
    cd dogemap
    ```
 
 4. Compile the code:
 
    ```
-   bash
    go build ./cmd/dogemap
    ```
 
@@ -43,21 +40,18 @@ After installing and running the service, it will start collecting all Dogecoin 
  For Windows:
 
    ```
-   bash
     .\dogemap.exe
    ```
 
 For Linux:
 
    ```
-   bash
     ./dogemap
    ```
 
 6. Open the provided browser URL:
 
    ```
-   bash
     http://localhost:8080
    ```
 
@@ -65,5 +59,5 @@ You will see the map running :)
 
 ---
 
-# Instructions to Install and Run on [DogeBox](https://github.com/dogeorg/dogeboxd) (coming soon)
+## Instructions to Install and Run on [DogeBox](https://github.com/dogeorg/dogeboxd) (coming soon)
 
