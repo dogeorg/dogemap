@@ -2,25 +2,20 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
-	dogemap "github.com/dogeorg/dogemap/pkg"
+	"github.com/dogeorg/dogemap/pkg/dogemap"
 )
 
 func main() {
-	IPs := []string{
-		"94.62.224.95", // Paulo's node
-		"47.155.33.59", // Random node
-		"127.0.0.1",    // Not a node
-	}
-	nodes := dogemap.NewNodeList(IPs)
-	nodes.PrintStatus()
+	// Start the HTTP server
+	go func() {
+		// Serve index.html using an HTTP server
+		http.Handle("/", http.FileServer(http.Dir("pkg/dogemap")))
+		fmt.Println("Server running at http://localhost:8080")
+		http.ListenAndServe(":8080", nil)
+	}()
 
-	fmt.Println("CHECKING NODES!")
-
-	nodes.CheckNodes()
-
-	nodes.PrintStatus()
-
-	fmt.Println("CHECKING NODES AGAIN!")
-	nodes.CheckNodes()
+	// Run the handshake script periodically
+	dogemap.RunHandshakePeriodically()
 }
