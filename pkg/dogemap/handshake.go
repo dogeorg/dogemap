@@ -1,4 +1,4 @@
-package main
+package dogemap
 
 import (
 	"bytes"
@@ -163,7 +163,8 @@ func soEncodeNetAddr(addr NetAddr) []byte {
 	return buf
 }
 
-func main() {
+// Much InitializeDatabaseAndTestNodes initializes the database and tests Dogecoin nodes
+func InitializeDatabaseAndTestNodes() {
 	db, err := sql.Open("sqlite3", "./dogemap.db") // Open SQLite database
 	if err != nil {
 		fmt.Println("Error opening database:", err)
@@ -173,20 +174,20 @@ func main() {
 
 	// Create nodes table if not exists
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS nodes (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		ip TEXT UNIQUE,
-		lat TEXT,
-		lon TEXT,
-		json TEXT,
-		timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	)`)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip TEXT UNIQUE,
+        lat TEXT,
+        lon TEXT,
+        json TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`)
 	if err != nil {
 		fmt.Println("Error creating table:", err)
 		return
 	}
 
 	// Dogecoin node IP to test, if added it will only use this to test otherwise will use the seeds
-	nodeIP := "94.62.224.95"
+	nodeIP := ""
 
 	// If a node IP is provided, only test that IP instead of querying the seed nodes
 	if nodeIP != "" {

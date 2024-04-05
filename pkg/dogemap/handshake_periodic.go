@@ -1,9 +1,6 @@
 package dogemap
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
 	"time"
 )
 
@@ -17,12 +14,7 @@ func RunHandshakePeriodically() {
 		select {
 		case <-ticker.C:
 			// Execute the handshake script
-			cmd := exec.Command("go", "run", "handshake.go")
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
-				fmt.Println("Error running handshake script:", err)
-			}
+			InitializeDatabaseAndTestNodes()
 		}
 	}
 }
