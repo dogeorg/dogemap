@@ -19,35 +19,47 @@ After installing and running the service, it will start collecting all Dogecoin 
 1. Install Git and the latest version of Go.
 2. Clone the repository:
 
-   ```bash
+   ```
+   bash
    git clone https://github.com/dogeorg/dogemap.git
+   ```
 
 3. After cloning, navigate to the directory:
 
-   ```bash
+   ```
+   bash
    cd dogemap
+   ```
 
 4. Compile the code:
 
-   ```bash
+   ```
+   bash
    go build ./cmd/dogemap
+   ```
 
 5. Run the executable file:
 
  For Windows:
 
-   ```bash
+   ```
+   bash
     .\dogemap.exe
+   ```
 
 For Linux:
 
-   ```bash
+   ```
+   bash
     ./dogemap
+   ```
 
 6. Open the provided browser URL:
 
-```bash
+   ```
+   bash
     http://localhost:8080
+   ```
 
 You will see the map running :)
 
