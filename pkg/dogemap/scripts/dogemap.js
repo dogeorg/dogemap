@@ -361,7 +361,21 @@ function getUniqueSubvers(data) {
      // Initialize the map
      //const world = await d3.json('./dogeWorld.json');
      //ready(world, data);
+
+      window.addEventListener('resize', debounce(() => ready(geoData, data), 300));
  }
 
  // Call initialize function when the DOM content is loaded
  document.addEventListener('DOMContentLoaded', initialize);
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
