@@ -1,0 +1,6 @@
+This favicon was generated using the following font:
+
+- Font Title: Comic Neue
+- Font Author: Copyright 2014 The Comic Neue Project Authors (https://github.com/crozynski/comicneue)
+- Font Source: https://fonts.gstatic.com/s/comicneue/v8/4UaErEJDsxBrF37olUeD_xHMwpteLwtHJlc.ttf
+- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))
