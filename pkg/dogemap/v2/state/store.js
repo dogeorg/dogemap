@@ -16,6 +16,8 @@ class Store {
       apiBaseUrl: 'http://localhost:3000',
       overrideBaseUrl: false,
       useMocks: true,
+      forceDelayInSeconds: 1,
+      reqLogs: true,
     };
 
     this.nodeContext = {

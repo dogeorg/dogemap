@@ -1,54 +1,99 @@
-import { LitElement, html, css, nothing, asyncReplace } from '/vendor/@lit/all@3.1.2/lit-all.min.js';
+import {
+  LitElement,
+  html,
+  css,
+  nothing,
+  asyncReplace,
+} from "/vendor/@lit/all@3.1.2/lit-all.min.js";
 import { store } from "/state/store.js";
 import { StoreSubscriber } from "/state/subscribe.js";
 
 // Components
 import "/components/views/node-inspector/index.js";
+import "/components/views/hex-map/hex-map.js";
+
+// APIs
+import { getWorld } from "/api/world/world.js";
+import { getNodes } from "/api/nodes/nodes.js";
 
 class MapView extends LitElement {
-
   // Declare properties you want the UI to react to changes for.
-  static get properties () {
+  static get properties() {
     return {
-      show_inspector: { type: Boolean }
-    }
+      map_data_available: { type: Boolean },
+      show_inspector: { type: Boolean },
+    };
   }
 
   static styles = css`
     :host {
-      display: flex;
-      height: 100%;
+      display: block;
       width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, #2B4B65, #000000)
     }
+
+    .floating {
+      position: absolute;
+      z-index: 199;
+
+      &.topleft { top: 1em; left: 1em; }
+      &.topright { top: 1em; right: 1em; }
+      &.bottomleft { bottom: 1em; left: 1em; }
+      &.bottomright { bottom: 1em; right: 1em; }
+    }
+
     .padded {
       padding: 2em;
     }
 
     h1 {
-      font-family: 'Comic Neue';
+      font-family: "Comic Neue";
     }
-  `
+
+    .initial-loader {
+      position: absolute;
+      top: calc(50%  - 10px);
+      left: calc(50% - 100px);
+      display: block;
+      width: 200px;
+      height: 100px;
+    }
+  `;
 
   constructor() {
     super();
     // Good place to set defaults.
     this.show_inspector = false;
     this.counter = countUp();
+
+    this.world = false;
+    this.points = false;
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.context = new StoreSubscriber(this, store);
+    this.fetchData();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
   }
 
+  async fetchData() {
+    if (!this.map_data_available) {
+      const [world, points] = await Promise.all([getWorld(), getNodes()]);
+      this.world = world;
+      this.points = points;
+      this.map_data_available = true;
+    }
+  }
+
   closeNode() {
     store.updateState({
-      nodeContext: { inspectedNodeId: null }
-    })
+      nodeContext: { inspectedNodeId: null },
+    });
   }
 
   toggleList() {
@@ -56,7 +101,7 @@ class MapView extends LitElement {
   }
 
   render() {
-    const { nodeContext } = this.context.store
+    const { nodeContext } = this.context.store;
     const showProfile = Boolean(nodeContext.inspectedNodeId);
     const nodeId = nodeContext.inspectedNodeId;
 
@@ -64,34 +109,46 @@ class MapView extends LitElement {
       "/node/wow-such-node-guy",
       "/node/best-node-ever",
       "/node/such-node-many-uptime",
-    ]
+    ];
 
     return html`
-      <div class="padded">
-        <h1>Map View!</h1>
-        <p>I should show a map</p>
-        <sl-button @click=${this.toggleList}>Show Top Nodes List</sl-button>
-        
-        <!-- Imagining this section here is the map, we want its state to persist even as things change around it -->
-        <p>Counter: <span>${asyncReplace(this.counter)}</span> (Imagine this is a map, always persists, beep-a-dee-boop)</p>
-        
-        <node-inspector 
-          ?open=${this.show_inspector || showProfile}
-          .list=${topNodes}
-          .selected=${nodeId}>
-        </node-inspector>
 
-      </div>
+        <div class="floating topleft">
+          <sl-button @click=${this.toggleList}>Show Top Nodes List</sl-button>
+        </div>
+
+        ${!this.map_data_available ? html`
+          <div class="initial-loader">
+            <sl-progress-bar indeterminate></sl-progress-bar>
+          </div>
+        ` : nothing}
+
+        ${this.map_data_available ? html`
+          <hex-map
+            .world=${this.world}
+            .points=${this.points}
+          ></hex-map>
+        ` : nothing}
+
+        <div class="floating bottomright">
+          <node-inspector
+            ?open=${this.show_inspector || showProfile}
+            .list=${topNodes}
+            .selected=${nodeId}
+          >
+          </node-inspector>
+        </div>
+
     `;
   }
 }
 
-customElements.define('map-view', MapView);
+customElements.define("map-view", MapView);
 
 async function* countUp() {
   let count = 0;
   while (true) {
-      yield count++;
-      await new Promise(resolve => setTimeout(resolve, 1000));  // Wait for one second
+    yield count++;
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for one second
   }
 }

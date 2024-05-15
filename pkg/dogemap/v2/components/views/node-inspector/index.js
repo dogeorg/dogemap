@@ -21,10 +21,11 @@ class NodeInspector extends LitElement {
 
   static styles = css`
     .wrap {
-      display: block;
       position: absolute;
       bottom: 0px;
       right: 0px;
+      display: block;
+      width: 350px;
       padding: 0em 1em 0.5em;
       margin: 1em;
       background: rgba(255,255,255,0.1);
