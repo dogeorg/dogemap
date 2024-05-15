@@ -41,6 +41,7 @@ class MapView extends LitElement {
       &.topright { top: 1em; right: 1em; }
       &.bottomleft { bottom: 1em; left: 1em; }
       &.bottomright { bottom: 1em; right: 1em; }
+      &.middleright { top: 50%; right: 1em; transform: translate(0, -50%); }
     }
 
     .padded {
@@ -58,6 +59,12 @@ class MapView extends LitElement {
       display: block;
       width: 200px;
       height: 100px;
+    }
+
+    #minimap {
+      width: 340px;
+      height: 340px;
+      background: rgba(0,0,0,0.5);
     }
   `;
 
@@ -129,6 +136,15 @@ class MapView extends LitElement {
             .points=${this.points}
           ></hex-map>
         ` : nothing}
+
+        <div id="minimap" class="floating middleright">
+        ${this.map_data_available ? html`
+          <hex-map
+            .world=${this.world}
+            .points=${this.points}
+          ></hex-map>
+        ` : nothing}
+        </div>
 
         <div class="floating bottomright">
           <node-inspector

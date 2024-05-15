@@ -1,8 +1,10 @@
 export function setup () {
   console.group('HexMap loading..');
 
-  this.width = window.innerWidth;
-  this.height = window.innerHeight;
+  // Set the height and width to whatever the the dimensions of the host element are.
+  const { width, height } = this.getBoundingClientRect();
+  this.width = width;
+  this.height = height;
   this.pixelRatio = window.devicePixelRatio || 1;
 
   // Establish canvas.
