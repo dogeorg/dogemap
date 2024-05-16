@@ -1,9 +1,9 @@
 import {
   LitElement,
   html,
-  css,
   nothing,
   asyncReplace,
+  repeat
 } from "/vendor/@lit/all@3.1.2/lit-all.min.js";
 import { store } from "/state/store.js";
 import { StoreSubscriber } from "/state/subscribe.js";
@@ -16,76 +16,90 @@ import "/components/views/hex-map/hex-map.js";
 import { getWorld } from "/api/world/world.js";
 import { getNodes } from "/api/nodes/nodes.js";
 
+// Utils
+import { bindToClass } from "/utils/class-bind.js";
+
+// Lib methods
+import * as classMethods from "./lib/index.js";
+
+import { mapViewStyles } from "./styles.js";
+
 class MapView extends LitElement {
   // Declare properties you want the UI to react to changes for.
   static get properties() {
     return {
       map_data_available: { type: Boolean },
       show_inspector: { type: Boolean },
+      show_results: { type: Boolean },
+      world: { type: Object },
+      points: { type: Object },
+      last_updated: { type: String }
     };
   }
 
-  static styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, #2B4B65, #000000)
-    }
-
-    .floating {
-      position: absolute;
-      z-index: 199;
-
-      &.topleft { top: 1em; left: 1em; }
-      &.topright { top: 1em; right: 1em; }
-      &.bottomleft { bottom: 1em; left: 1em; }
-      &.bottomright { bottom: 1em; right: 1em; }
-      &.middleright { top: 50%; right: 1em; transform: translate(0, -50%); }
-    }
-
-    .padded {
-      padding: 2em;
-    }
-
-    h1 {
-      font-family: "Comic Neue";
-    }
-
-    .initial-loader {
-      position: absolute;
-      top: calc(50%  - 10px);
-      left: calc(50% - 100px);
-      display: block;
-      width: 200px;
-      height: 100px;
-    }
-
-    #minimap {
-      width: 340px;
-      height: 340px;
-      background: rgba(0,0,0,0.5);
-    }
-  `;
+  static styles = mapViewStyles
 
   constructor() {
     super();
     // Good place to set defaults.
     this.show_inspector = false;
     this.counter = countUp();
+    this.last_updated;
 
+    // Dynamic (changes as filters are applied);
     this.world = false;
     this.points = false;
+    
+    // Keep record of original state (before filtering);
+    this.originalWorld;
+    this.originalPoints;
+
+    bindToClass(classMethods, this);
+  }
+
+  set world(newValue) {
+    this._world = newValue;
+    // Whenever world is updated, update the "last_updated" field.
+    this.last_updated = Date.now();
+  }
+
+  set points(newValue) {
+    this._points = newValue;
+    // Whenever points is updated, update the "last_updated" field.
+    this.last_updated = Date.now();
+  }
+
+  get world() {
+    return this._world;
+  }
+
+  get points() {
+    return this._points;
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.context = new StoreSubscriber(this, store);
     this.fetchData();
+
+    this.addEventListener('sl-hide', this.handleResultsHide);
   }
 
   disconnectedCallback() {
+    this.removeEventListener('sl-hide', this.handleResultsHide);
     super.disconnectedCallback();
+  }
+
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      console.log(`MAP-VIEW: ${propName} changed. oldValue: ${oldValue}`);
+    });
+  }
+
+  handleResultsHide(e) {
+    if (e.originalTarget.id === "ResultsDraw") {
+      this.show_results = false;
+    }
   }
 
   async fetchData() {
@@ -93,7 +107,12 @@ class MapView extends LitElement {
       const [world, points] = await Promise.all([getWorld(), getNodes()]);
       this.world = world;
       this.points = points;
+
+      this.originalWorld = world;
+      this.originalPoints = points;
+
       this.map_data_available = true;
+      this.last_updated = Date.now();
     }
   }
 
@@ -105,6 +124,10 @@ class MapView extends LitElement {
 
   toggleList() {
     this.show_inspector = !this.show_inspector;
+  }
+
+  handleResultsTabClick() {
+    this.show_results = !this.show_results;
   }
 
   render() {
@@ -121,7 +144,15 @@ class MapView extends LitElement {
     return html`
 
         <div class="floating topleft">
-          <sl-button @click=${this.toggleList}>Show Top Nodes List</sl-button>
+          <div>
+            <sl-button @click=${this.toggleList}>Show Top Nodes List</sl-button>
+          </div>
+
+          <div>
+            <sl-input type="search" placeholder="Search" @sl-input=${this.handleSearchInput}>
+              <sl-icon name="search" slot="prefix"></sl-icon>
+            </sl-input>
+          </div>
         </div>
 
         ${!this.map_data_available ? html`
@@ -134,6 +165,7 @@ class MapView extends LitElement {
           <hex-map
             .world=${this.world}
             .points=${this.points}
+            nonce=${this.last_updated}
           ></hex-map>
         ` : nothing}
 
@@ -142,6 +174,7 @@ class MapView extends LitElement {
           <hex-map
             .world=${this.world}
             .points=${this.points}
+            nonce=${this.last_updated}
           ></hex-map>
         ` : nothing}
         </div>
@@ -155,6 +188,23 @@ class MapView extends LitElement {
           </node-inspector>
         </div>
 
+        ${this.map_data_available ? html`
+          <div id="ResultsDrawTab" ?nudge=${this.show_results} class="peaking-tab bottom">
+            <div class="tab-label" @click=${this.handleResultsTabClick}><span>[ ${this.points.length} ] Nodes Found</span></div>
+          </div>
+        ` : nothing }
+
+        ${this.map_data_available ? html`
+        <sl-drawer id="ResultsDraw" no-header ?open=${this.show_results} placement="bottom" style="--size: 35vh;">
+          ${this.points.map(p => html`
+            <div class="node-list-item">
+              <span>${p.subver}</span>
+              <span>${p.country}</span>
+              <span>${p.city}</span>
+            </div>
+          `)}
+        </sl-drawer>
+        ` : nothing }
     `;
   }
 }

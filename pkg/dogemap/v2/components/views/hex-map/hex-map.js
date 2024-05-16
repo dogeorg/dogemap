@@ -18,6 +18,7 @@ import { hexMapStyles } from "./styles.js";
 class HexMap extends LitElement {
   static get properties() {
     return {
+      nonce: { type: String },
       world: { type: Object },
       points: { type: Object },
     };
@@ -61,12 +62,22 @@ class HexMap extends LitElement {
     super.disconnectedCallback();
   }
 
+  updated(changedProperties) {
+    changedProperties.forEach((oldValue, propName) => {
+      if (propName === 'nonce') {
+        // when this changes, its a signal for hex-map to re-draw.
+        this.setup();
+      }
+    });
+  }
+
   render() {
     return html`
       <canvas id="Hexmap"></canvas>
 
       <div class="floating center">
         <p>HexMap Run Time: <span>${asyncReplace(this.counter)}</span></p>
+        <p>Last Updated: ${this.nonce}</p>
       </div>
     `;
   }
