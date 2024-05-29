@@ -52,7 +52,7 @@ For Linux:
 6. Open the provided browser URL:
 
    ```
-    http://localhost:8080
+    http://localhost:9090
    ```
 
 You will see the map running :)

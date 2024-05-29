@@ -20,3 +20,7 @@ build
 
 # Go workspace file
 go.work
+
+# App specific
+/dogemap
+dogemap.db
