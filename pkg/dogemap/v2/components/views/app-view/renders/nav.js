@@ -17,6 +17,7 @@ export function renderNav() {
   return html`
     <nav class="top">
       I'm a nav
+      <doge-ego></doge-ego>
     </nav>
     <style>${topNavStyles}</style>
   `;
