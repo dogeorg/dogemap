@@ -11,6 +11,7 @@ import { StoreSubscriber } from "/state/subscribe.js";
 // Components
 import "/components/views/node-inspector/index.js";
 import "/components/views/hex-map/hex-map.js";
+import "/components/views/demo-map/demo-map.js";
 
 // APIs
 import { getWorld } from "/api/world/world.js";
@@ -142,8 +143,9 @@ class MapView extends LitElement {
     ];
 
     return html`
+        <demo-map></demo-map>
 
-        <div class="floating topleft">
+        <div class="floating topleft" style="display: none">
           <div>
             <sl-button @click=${this.toggleList}>Show Top Nodes List</sl-button>
           </div>
@@ -169,7 +171,7 @@ class MapView extends LitElement {
           ></hex-map>
         ` : nothing}
 
-        <div id="minimap" class="floating middleright">
+        <div id="minimap" class="floating middleright" style="display: none;">
         ${this.map_data_available ? html`
           <hex-map
             .world=${this.world}
